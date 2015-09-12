@@ -7,14 +7,12 @@ public class SetDefaultAcc implements Runnable
 	//单独的线程
 	DataBaseconnection dbc=new DataBaseconnection();
 	ResultSet res;
-	String pass=null;
+	String pass;
 	
 	public SetDefaultAcc(String temp)
 	{
 		this.pass=temp;
 	}
-		
-
 	public void run()
 	{
 		res=dbc.executeQuery("select * from stuacc where defaultacc='yes'");
@@ -29,10 +27,8 @@ public class SetDefaultAcc implements Runnable
 			else 
 			{
 				dbc.executeUpdate("update stuacc set defaultacc='yes' where account='"+pass+"'");
-		
 			}
 		}
 		catch(Exception e){}
 	}
-
 }
