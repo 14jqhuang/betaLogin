@@ -40,6 +40,7 @@ import javax.swing.*;
 public class Flow extends JPanel implements ActionListener,FocusListener,ItemListener
 {
 	String acc,pass;
+	int id=0;
 	int clicknum=0;
 	int closePane=0;
 	DataBaseconnection dbc=new DataBaseconnection();
@@ -203,9 +204,37 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 				{
 					JOptionPane.showMessageDialog(null,"Invalid username&&||password","用户名或密码错误",JOptionPane.ERROR_MESSAGE);
 				}
-				//确保以后的用户名和密码输入正确
+				//确保用户名和密码输入正确
 				else
-				{new Lazerinput((String) user.getSelectedItem(),pw.getText());}
+				{//保留输入历史的同时，保存至数据库
+					new Lazerinput((String) user.getSelectedItem(),pw.getText());
+					res1=dbc.executeQuery("select * from stuacc where account='"+(String) user.getSelectedItem()+"'");
+					try 
+					{
+						//Check whether there exists acounnt
+						if (!res1.next())
+						{
+							res=dbc.executeQuery("select * from stuacc");
+							try 
+							{
+								while (res.next())
+								{
+									//遍历到最后
+									id=Integer.parseInt(res.getString(3));
+								}
+								dbc.executeUpdate("insert into stuacc values('"+(String) user.getSelectedItem()+"',"
+										+ "'"+pw.getText()+"','"+(id+1)+"','')");
+							} 
+							catch (SQLException e1)
+							{e1.printStackTrace();}
+						}
+					} 
+					catch (HeadlessException e2) 
+						{e2.printStackTrace();}
+					 
+					catch (SQLException e2)
+					{e2.printStackTrace();}
+				}
 			} 
 			catch (HeadlessException e1) {
 				e1.printStackTrace();
