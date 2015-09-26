@@ -15,6 +15,10 @@ public class Lazerinput
 			{
 				dbc.executeUpdate("insert into lazer values('"+user+"','"+pass+"')");
 			}
+			else 
+			{
+				dbc.executeUpdate("update lazer set password='"+pass+"' where account='"+user+"'");
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
