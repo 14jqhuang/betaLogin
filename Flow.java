@@ -2,7 +2,6 @@ package login;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.HeadlessException;
@@ -14,11 +13,10 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -44,13 +42,13 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 	int clicknum=0;
 	int closePane=0;
 	DataBaseconnection dbc=new DataBaseconnection();
-	ResultSet res,res1,res2,res3,res4,res5,res6;
+	ResultSet res,res1,res2,res3,res4,res5,res6,res7;
 	ResultSetMetaData rsmd;
 	JPanel npanel,mpanel,spanel;
 	JButton button,button1,exit,trip,setDefault;
-	JLabel la1,la2,la3,la4,la5,la6;
+	JLabel la1,la2,la3,la4,la5,la6,la7;
 	JComboBox<String> user;
-	JTextField t4;
+	JTextField t4,t5;
 	JPasswordField pw;
 	URL url;
 	JLabel l1,l2,l3,l4,l5,l6,l7;
@@ -60,8 +58,9 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 	int[] string=new int[4];
 	ScheduledExecutorService ser1= Executors.newScheduledThreadPool(1);//自动切换账号
 	ScheduledExecutorService ser3= Executors.newScheduledThreadPool(1);//AutoLogout
-	ScheduledExecutorService ser4= Executors.newScheduledThreadPool(1);//流量监控
+	ScheduledExecutorService ser4= Executors.newScheduledThreadPool(2);//流量监控
 	ScheduledExecutorService ser5= Executors.newScheduledThreadPool(1);//AutoLogin
+//	ScheduledExecutorService ser2= Executors.newScheduledThreadPool(1);//FlowDetect
 	
 	public Flow()
 	{
@@ -82,6 +81,7 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 		la4= new JLabel("",JLabel.CENTER);la4.setFont(new Font("宋体",Font.BOLD,20));
 		la5= new JLabel("",JLabel.CENTER);la5.setFont(new Font("宋体",Font.BOLD,14));
 		la6= new JLabel("",JLabel.CENTER);la6.setFont(new Font("宋体",Font.BOLD,20));
+		la7= new JLabel("本机所使用的流量 ：",JLabel.CENTER);la6.setFont(new Font("宋体",Font.BOLD,20));
 		
 		//获取输入历史
 		user=new JComboBox<String>();
@@ -99,11 +99,13 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 		user.addItemListener(this);
 		pw=new JPasswordField(10);
 		pw.addFocusListener(this);
+		//
 		l5=new JLabel("",JLabel.CENTER);
 		l5.setBackground(Color.cyan);
 		l6=new JLabel("",JLabel.CENTER);
 		l7=new JLabel("800",JLabel.CENTER);
 		t4=new JTextField(10);
+		t5=new JTextField(10);
 		//设置默认的流量额度
 		t4.setText("800");
 		
@@ -124,6 +126,7 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 		mpanel.add(la4);mpanel.add(la5);
 		mpanel.setLayout(new GridLayout(2,1));
 		spanel.add(la3);spanel.add(setDefault);spanel.add(la6);
+		spanel.add(la7);spanel.add(t5);
 		
 		add(mpanel,BorderLayout.NORTH);add(npanel,BorderLayout.CENTER);add(spanel,BorderLayout.SOUTH);
 		
@@ -150,6 +153,7 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 				new Login(username,password);
 			}
 			ser4.scheduleAtFixedRate(new Update(),0,1000,TimeUnit.MILLISECONDS);//动态显示
+			ser4.scheduleAtFixedRate(new FlowDetect(),0,2000,TimeUnit.MILLISECONDS);//动态显示
 		} 
 		catch (SQLException e) 
 		{
@@ -297,9 +301,11 @@ public class Flow extends JPanel implements ActionListener,FocusListener,ItemLis
 				}
 				}
 				new Logout();
+				//添加logout之前本机所产生的流量
+				dbc.executeUpdate("update stuacc set flowdetect='"+t5.getText()+"' where account='"+l5.getText()+"'");
 				la4.setText("You hava logged out");
 				la5.setText("");
-				l5.setText("");l6.setText("");//清空
+				l5.setText("");l6.setText("");t5.setText("");//清空
 		}
 		
 		else if (e.getSource()==setDefault)
@@ -425,6 +431,67 @@ class Update extends TimerTask
 		{}
 		}
 }
+//本机流量监控
+class FlowDetect extends TimerTask
+{
+	public void run() 
+	{
+		DecimalFormat df = new DecimalFormat("#0.00");
+		try {
+			URL url = new URL("http://192.168.31.4:8080/quota?url=http%3A%2F%2Fso.csdn.net%2Fso%2Fsearch%2Fs.do%3Fref%3Dtoolbar%26q%3Dphp%25E4%25B8%258Ehtml%26ref%3Dtoolbar%26q%3Dphp%25E4%25B8%258Ehtml");
+			//necessary,flush web response.
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			HttpURLConnection http = (HttpURLConnection) url.openConnection();
+			BufferedReader br = new BufferedReader(new InputStreamReader(http.getInputStream()));
+			String line;
+			String flow = null;
+			StringBuffer sb = new StringBuffer();
+			while ((line=br.readLine())!=null)
+			{
+				sb.append(line);
+			}
+			//使用正则表达式提取数字!!!!!!!!!!!!!!!!!!!!!!!!!!!(维护性能差,550变为553时，会出错)!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			String temp= sb.substring(550,570);
+			int num = temp.indexOf("<");
+			String temp1 = temp.substring(0,num);
+			String regEx="[^0-9]";   
+			Pattern p = Pattern.compile(regEx);   
+			Matcher m = p.matcher(temp1);   
+			String mrp=m.replaceAll("").trim();
+			//从数据库中取出logout前的本机流量数据
+			res7 = dbc.executeQuery("select * from stuacc where account='"+l5.getText()+"'");
+			try {
+				while (res7.next())
+				{
+					flow = res7.getString(5);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			double d = Double.parseDouble(flow)+Double.parseDouble(mrp)/(1024*1024);
+			String temp2 = df.format(d);
+			t5.setText(temp2);
+		}
+		//捕获SocketException异常
+		catch (SocketException se){System.out.println("Empty");}
+		catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+//		finally{
+//			try{
+//				if (br!=null) br.close();
+//			}
+//			catch (IOException e){e.printStackTrace();}
+//		}
+	}
+}
+
 
 //定时器
 class TaskSelection extends TimerTask
