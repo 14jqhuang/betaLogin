@@ -6,6 +6,10 @@ import javax.swing.JTabbedPane;
 
 public class LoginMethod extends JFrame
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JTabbedPane jtp=new JTabbedPane();
 	
 	public LoginMethod()
@@ -18,12 +22,13 @@ public class LoginMethod extends JFrame
 		add(jtp);
 		setVisible(true);
 		setBounds(800,0,600,500);
+		setTitle("^_^Welcome to use^_^");
 		setIconImage(new ImageIcon("E:/images/penguin.png").getImage());
 	}
 	
 	public static void main(String[] args) 
 	{
-			LoginMethod LM=new LoginMethod();
+			new LoginMethod();
 	}
 
 }

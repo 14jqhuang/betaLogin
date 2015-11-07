@@ -6,20 +6,19 @@ import java.awt.GridLayout;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.*;
 
 public class AddAccount extends JPanel implements ActionListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	JPanel panel1,panel2;
-	JLabel label1,label2,label3;
+	JLabel label1,label2,label3,label4;
 	JTextField addtext1;
 	JPasswordField addtext2;
 	JButton addbutton;
@@ -38,6 +37,7 @@ public class AddAccount extends JPanel implements ActionListener
 		label1=new JLabel("账号");
 		label2=new JLabel("密码");
 		label3=new JLabel(new ImageIcon("E:/images/qq4.gif"));
+		label4=new JLabel("亲！！！添加账号前请先登出^_^",JLabel.CENTER);
 		addtext1=new JTextField(10);
 		addtext2=new JPasswordField(10);
 		addbutton=new JButton("添加");
@@ -48,7 +48,7 @@ public class AddAccount extends JPanel implements ActionListener
 		panel2.add(label1);panel2.add(label2);panel2.add(addtext1);
 		panel2.add(addtext2);panel2.add(addbutton);
 		
-		add(panel1,BorderLayout.NORTH);add(panel2,BorderLayout.CENTER);
+		add(panel1,BorderLayout.NORTH);add(label4);add(panel2,BorderLayout.SOUTH);
 		setVisible(true);
 		setBounds(200,200,400,400);
 		addbutton.addActionListener(this);
@@ -58,42 +58,47 @@ public class AddAccount extends JPanel implements ActionListener
 	{
 		if (e.getActionCommand()=="添加")
 		{
-			res1=dbc.executeQuery("select * from stuacc where account='"+addtext1.getText()+"'");
-			try 
+			//First to logout if login
+			int judgeflow = new JudgeLogin().judge(addtext1.getText(),addtext2.getText());
+			if (judgeflow==1)
 			{
-				//Check whether there exists acounnt
-				if (res1.next())
+				res1=dbc.executeQuery("select * from stuacc where account='"+addtext1.getText()+"'");
+				try 
 				{
-					JOptionPane.showMessageDialog(null, addtext1.getText()+"账号已经存在 ");
-				}
-				
-				else 
-				{
-					res=dbc.executeQuery("select * from stuacc");
-					try 
+					//Check whether there exists acounnt
+					if (res1.next())
 					{
-						while (res.next())
-						{
-							//遍历到最后
-							id=Integer.parseInt(res.getString(3));
-						}
-						dbc.executeUpdate("insert into stuacc values('"+addtext1.getText()+"',"
-								+ "'"+addtext2.getText()+"','"+(id+1)+"','')");
+						JOptionPane.showMessageDialog(null, addtext1.getText()+"账号已经存在 ");
+					}
 
-						JOptionPane.showMessageDialog(null,"添加成功！","已保存",JOptionPane.OK_OPTION);
-					} 
-					catch (SQLException e1)
-					{e1.printStackTrace();}
-				}
-			} 
-			catch (HeadlessException e2) 
+					else 
+					{
+						res=dbc.executeQuery("select * from stuacc");
+						try 
+						{
+							while (res.next())
+							{
+								//遍历到最后
+								id=Integer.parseInt(res.getString(3));
+							}
+							dbc.executeUpdate("insert into stuacc values('"+addtext1.getText()+"',"
+									+ "'"+addtext2.getText()+"','"+(id+1)+"','')");
+
+							JOptionPane.showMessageDialog(null,"添加成功！","已保存",JOptionPane.OK_OPTION);
+						} 
+						catch (SQLException e1)
+						{e1.printStackTrace();}
+					}
+				} 
+				catch (HeadlessException e2) 
 				{e2.printStackTrace();}
-			 
-			catch (SQLException e2)
-			{e2.printStackTrace();}
-			
+
+				catch (SQLException e2)
+				{e2.printStackTrace();}
+			}
+			else{JOptionPane.showMessageDialog(null,"亲，你还没登出哦^_^,请先登出吧,这样就能愉快地玩耍啦！！！","未登出",JOptionPane.ERROR_MESSAGE);}
+			//添加后清空
+			addtext1.setText("");addtext2.setText("");
 		}
-				//添加后清空
-				addtext1.setText("");addtext2.setText("");
 	}
 }

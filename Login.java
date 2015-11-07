@@ -31,6 +31,7 @@ public class Login
 			outputStream.close(); 
 			
 			InputStream inStream=httpConn.getInputStream();
+			inStream.close();
 		}
 		catch(Exception e){}
 	}

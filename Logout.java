@@ -32,9 +32,9 @@ public class Logout
 			outputStream.close(); 
 			
 			InputStream inStream=httpConn.getInputStream();
+			inStream.close();
 		}
 		catch (Exception e) 
 		{}
 	}
-
 }

@@ -1,5 +1,5 @@
 package login;
-//Êı¾İ¿âµÄÁ¬½Ó
+//æ•°æ®åº“çš„è¿æ¥
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -14,21 +14,21 @@ public class DataBaseconnection {
 
 	public DataBaseconnection() {
 
-		// ½«¿ÉÄÜ³öÏÖÒì³£µÄÓï¾ä·ÅÈëtry¿éÖĞ.
+		// å°†å¯èƒ½å‡ºç°å¼‚å¸¸çš„è¯­å¥æ”¾å…¥tryå—ä¸­.
 		try {
-			Class.forName("sun.jdbc.odbc.JdbcOdbcDriver"); // ¼ÓÔØÇı¶¯
+			Class.forName("com.mysql.jdbc.Driver"); // åŠ è½½é©±åŠ¨
 		} catch (ClassNotFoundException e) {
-			System.out.println(e);//catch¿é´¦ÀíÒì³£.
+			System.out.println(e);//catchå—å¤„ç†å¼‚å¸¸.
 		}
 		try {
-			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/abcd","root","578111"); // Á¬½ÓÊı¾İ¿â
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/abcd","root","578178"); // è¿æ¥æ•°æ®åº“
 
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
 	}
 
-	// ²éÑ¯
+	// æŸ¥è¯¢
 	public ResultSet executeQuery(String sql_s) {
 		try {
 			sql = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -40,7 +40,7 @@ public class DataBaseconnection {
 		return rs;
 	}
 
-	// update²Ù×÷
+	// updateæ“ä½œ
 	public int executeUpdate(String sql_s) {
 
 		int rs = 0;
@@ -54,7 +54,7 @@ public class DataBaseconnection {
 		return rs;
 	}
 
-	// ¹Ø±ÕÊı¾İ¿â
+	// å…³é—­æ•°æ®åº“
 	public void close() {
 		if (rs != null) {
 			try {
@@ -76,4 +76,3 @@ public class DataBaseconnection {
 	}
 
 }
-//»¹ÓĞºÜ¶à¹¦ÄÜÃ»ÓĞÊµÏÖ£¬ºóÃæÓĞÊ±¼äÔÙ²¹ÉÏ£¡£¡Ps£ºÕıÔÚÑ§Ï°ÖĞ~~~
