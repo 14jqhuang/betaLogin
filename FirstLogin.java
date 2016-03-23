@@ -8,7 +8,6 @@ public class FirstLogin
 	/*
 	 * 判断是否有默认的登陆账号,并且字段名不能为某些特殊字符，如default等
 	 */
-	
 	DataBaseconnection dbc = new DataBaseconnection();
 	ResultSet res4;
 	public FirstLogin()
