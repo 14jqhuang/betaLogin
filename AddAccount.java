@@ -41,7 +41,6 @@ public class AddAccount extends JPanel implements ActionListener
 		addtext1=new JTextField(10);
 		addtext2=new JPasswordField(10);
 		addbutton=new JButton("添加");
-		
 		panel1.add(label3);
 		panel2.setLayout(new GridLayout(3,2));
 	
