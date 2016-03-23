@@ -135,5 +135,6 @@ public class OuterClass implements ActionListener
 		{
 			new Dialog();
 		}
+		
 	}
 }
