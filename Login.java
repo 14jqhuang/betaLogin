@@ -24,7 +24,6 @@ public class Login
 			byte[] requestStringBytes = requestString.getBytes("UTF-8"); 
 			// (如果不设此项,在传送序列化对象时,当WEB服务默认的不是这种类型时可能抛java.io.EOFException)
 			httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded"); 
-
 			// 建立输出流，并写入数据
 			OutputStream outputStream = httpConn.getOutputStream(); //包含connect（）方法
 			outputStream.write(requestStringBytes); 
