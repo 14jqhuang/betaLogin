@@ -26,6 +26,7 @@ public class LoginMethod extends JFrame
 		setIconImage(new ImageIcon("E:/images/penguin.png").getImage());
 	}
 	
+	
 	public static void main(String[] args) 
 	{
 			new LoginMethod();
