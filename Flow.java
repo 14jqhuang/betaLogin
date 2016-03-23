@@ -50,7 +50,7 @@ public class Flow extends JPanel implements FocusListener,ItemListener
 	//键值对(账号——密码)
 	Map<String,String> map;
 	ScheduledExecutorService ser4= Executors.newScheduledThreadPool(2);//流量监控
-	
+
 	public Flow()
 	{
 		npanel=new JPanel();
