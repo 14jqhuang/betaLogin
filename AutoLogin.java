@@ -93,7 +93,6 @@ public class AutoLogin extends TimerTask
 						
 					}
 					catch(Exception e){e.printStackTrace();}
-
 				}
 		}
 }
