@@ -60,6 +60,7 @@ public class Update extends TimerTask
 			String mused=df.format(usedflow1/(1024*1024));
 			String mused1=df.format(usedflow2/(1024*1024));
 
+
 			flow.l5.setText(accou);flow.l6.setText(mused);flow.l7.setText(mused1);
 			//用户联网状态
 			if (account.equals("Used bytes"))
